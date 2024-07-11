@@ -90,7 +90,7 @@ PLH::insts_t PLH::ZydisDisassembler::disassemble(
 
 		for (int i = 0; i < insInfo.operand_count; i++) {
 			auto op = decoded_operands[i];
-			if (op.type == ZYDIS_OPERAND_TYPE_MEMORY && op.mem.type == ZYDIS_MEMOP_TYPE_MEM && op.mem.disp.has_displacement && op.mem.base == ZYDIS_REGISTER_NONE && op.mem.segment != ZYDIS_REGISTER_DS && inst.isIndirect()) {
+			if (op.type == ZYDIS_OPERAND_TYPE_MEMORY && op.mem.type == ZYDIS_MEMOP_TYPE_MEM && op.mem.disp.size > 0 && op.mem.base == ZYDIS_REGISTER_NONE && op.mem.segment != ZYDIS_REGISTER_DS && inst.isIndirect()) {
 				inst.setIndirect(false);
 			}
 		}
@@ -151,7 +151,7 @@ std::optional<PLH::Instruction> PLH::ZydisDisassembler::disassemble_one_inst(
 
 		for (int i = 0; i < insInfo.operand_count; i++) {
 			auto op = decoded_operands[i];
-			if (op.type == ZYDIS_OPERAND_TYPE_MEMORY && op.mem.type == ZYDIS_MEMOP_TYPE_MEM && op.mem.disp.has_displacement && op.mem.base == ZYDIS_REGISTER_NONE && op.mem.segment != ZYDIS_REGISTER_DS && inst.isIndirect()) {
+			if (op.type == ZYDIS_OPERAND_TYPE_MEMORY && op.mem.type == ZYDIS_MEMOP_TYPE_MEM && op.mem.disp.size > 0 && op.mem.base == ZYDIS_REGISTER_NONE && op.mem.segment != ZYDIS_REGISTER_DS && inst.isIndirect()) {
 				inst.setIndirect(false);
 			}
 		}
@@ -225,7 +225,7 @@ PLH::insts_t PLH::ZydisDisassembler::disassemble_backward_until_prev_func_end(
 
 			for (int i = 0; i < insInfo.operand_count; i++) {
 				auto op = decoded_operands[i];
-				if (op.type == ZYDIS_OPERAND_TYPE_MEMORY && op.mem.type == ZYDIS_MEMOP_TYPE_MEM && op.mem.disp.has_displacement && op.mem.base == ZYDIS_REGISTER_NONE && op.mem.segment != ZYDIS_REGISTER_DS && inst.isIndirect()) {
+				if (op.type == ZYDIS_OPERAND_TYPE_MEMORY && op.mem.type == ZYDIS_MEMOP_TYPE_MEM && op.mem.disp.size > 0 && op.mem.base == ZYDIS_REGISTER_NONE && op.mem.segment != ZYDIS_REGISTER_DS && inst.isIndirect()) {
 					inst.setIndirect(false);
 				}
 			}
@@ -380,7 +380,7 @@ void PLH::ZydisDisassembler::setNoOpField(PLH::Instruction& inst, const ZydisDec
 		&& operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER
 		&& operands[1].type == ZYDIS_OPERAND_TYPE_MEMORY
 		&& operands[0].reg.value == operands[1].mem.base
-		&& (!operands[1].mem.disp.has_displacement || operands[1].mem.disp.value == 0))
+		&& (!operands[1].mem.disp.size > 0 || operands[1].mem.disp.value == 0))
 	{
 		inst.setIsNoOp(true);
 	} 
